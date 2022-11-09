@@ -5,10 +5,12 @@
     file: "MariaDB"
     description: "MariaDB"
     baseurl: "{{ mariadb_redhat_repo }}"
-    gpgkey: "{{ mariadb_redhat_repo_key }}" 
+    gpgkey: "{{ mariadb_redhat_repo_key }}"
     gpgcheck: true
   become: true
   register: "repo_added"
+  when:
+    - galera_enable_mariadb_repo | bool
 
 # fix for conflicting package from appstream
 - name: redhat | disable appstream mysql/mariadb modules
@@ -17,7 +19,9 @@
     warn: false
   changed_when: false
   become: true
-  when: ansible_distribution_major_version is version('8', '>=')
+  when:
+    - ansible_distribution_major_version is version('8', '==')
+    - galera_enable_mariadb_repo | bool
 
 - name: redhat | clean dnf metadata (centos8 & fedora)
   shell: "dnf clean all && rm -r /var/cache/dnf" # noqa 503
@@ -27,6 +31,7 @@
   when:
     - repo_added.changed
     - ansible_distribution_major_version is version('8', '>=')
+    - galera_enable_mariadb_repo | bool
 
 - name: redhat | installing pre-reqs
   yum:
@@ -73,11 +78,3 @@
     name: "mariadb"
     enabled: true
   become: true
-
-- name: redhat | start only the first node to add users
-  service:
-    name: "mariadb"
-    state: started
-  become: true
-  when: inventory_hostname == galera_mysql_first_node
-

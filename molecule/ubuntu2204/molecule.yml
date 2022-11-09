@@ -12,17 +12,17 @@ lint: |
   flake8
 platforms:
   - name: node1
-    image: mrlesmithjr/centos:8
+    image: jrei/systemd-ubuntu:22.04
     privileged: true
-    command: /usr/sbin/init
+    command: /lib/systemd/systemd
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     groups:
       - galera-cluster-nodes
   - name: node2
-    image: mrlesmithjr/centos:8
+    image: jrei/systemd-ubuntu:22.04
     privileged: true
-    command: /usr/sbin/init
+    command: /lib/systemd/systemd
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     groups:
